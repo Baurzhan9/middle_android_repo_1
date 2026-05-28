@@ -19,9 +19,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import ru.yandexpraktikum.cardsanimation.model.AnimationStep
 import ru.yandexpraktikum.cardsanimation.model.CardData
 import kotlin.math.cos
 import kotlin.math.sin
+
+private const val DEFAULT_ANIMATION_DURATION = 800
+private const val FINAL_ANIMATION_DURATION = 300
+
 
 @Composable
 fun AnimatedCard(
@@ -38,13 +43,24 @@ fun AnimatedCard(
     // Подсказка: используйте animateFloatAsState для плавной анимации
     val animatedRotation by animateFloatAsState(
         targetValue = when {
-            animationStep == 3 -> finalRotation
+            animationStep == AnimationStep.FINAL.step -> finalRotation
             isAnimating -> targetRotation
             else -> targetRotation
         },
-        animationSpec = tween(durationMillis = if (animationStep == 3) 300 else 800),
+        animationSpec = tween(
+            durationMillis = if (animationStep == AnimationStep.FINAL.step) {
+                FINAL_ANIMATION_DURATION
+            } else {
+                DEFAULT_ANIMATION_DURATION
+            }
+        ),
         finishedListener = {
-            if (animationStep == 3 && isAnimating) onAnimationStepComplete?.invoke(3)
+            if (
+                animationStep == AnimationStep.FINAL.step &&
+                isAnimating
+            ) {
+                onAnimationStepComplete?.invoke(AnimationStep.FINAL.step)
+            }
         },
         label = "rotation"
     )

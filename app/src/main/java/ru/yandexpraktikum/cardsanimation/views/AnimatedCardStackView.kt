@@ -184,24 +184,52 @@ class AnimatedCardStackView @JvmOverloads constructor(
 
                 // TODO: Обработка в заданиях 3 и 4
 
-                val horizontalDragOffset = kotlin.math.abs(velocityX) > kotlin.math.abs(velocityY)
-                val verticalDragOffset = kotlin.math.abs(velocityY) > kotlin.math.abs(velocityX)
+                handleFlingGesture(
+                    velocityX = velocityX,
+                    velocityY = velocityY
+                )
 
-                when {
-                    horizontalDragOffset -> {
-                        handleHorizontalSwipe()
-                    }
-                    verticalDragOffset -> {
-                        handleVerticalSwipe(verticalDragDistance = velocityY, onFanStateChange = { isRotated = it })
-                    }
-
-                }
-
-
-                updateCardPositions()
                 return true
             }
         })
+
+    private fun updateFanState(isRotated: Boolean) {
+        this.isRotated = isRotated
+    }
+
+    private fun handleFlingGesture(
+        velocityX: Float,
+        velocityY: Float
+    ) {
+        when {
+            isHorizontalSwipe(velocityX, velocityY) -> {
+                handleHorizontalSwipe()
+            }
+
+            isVerticalSwipe(velocityX, velocityY) -> {
+                handleVerticalSwipe(
+                    verticalDragDistance = velocityY,
+                    onFanStateChange = ::updateFanState
+                )
+            }
+        }
+
+        updateCardPositions()
+    }
+
+    private fun isHorizontalSwipe(
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        return kotlin.math.abs(velocityX) > kotlin.math.abs(velocityY)
+    }
+
+    private fun isVerticalSwipe(
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        return kotlin.math.abs(velocityY) > kotlin.math.abs(velocityX)
+    }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(event)
